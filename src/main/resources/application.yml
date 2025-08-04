@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/challenge
+    username: postgres
+    password: Oussama8504@@
+    driver-class-name: org.postgresql.Driver
+
+  application:
+    name: gestion-challenges-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+      format_sql: true
+      type: trace
+      sql: debug
+    show-sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB  
+
+
+  messages:
+    messages:
+      basename: internationalization/messages
+      encoding: UTF-8
+      use-code-as-default-message: true
+
+
+  thymeleaf:
+    check-template-location: false
+
+
+  cloud:
+    config:
+      enabled: false
+
+    servlet:
+      multipart:
+        enabled: true
+        file-size-threshold: 2MB
+        max-file-size: 100MB
+        max-request-size: 100MB
+
+
+
+
+
+server:
+  port: 9094

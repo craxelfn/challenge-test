@@ -1,0 +1,7 @@
+curl -X POST "http://localhost:9094/api/challenges/challenges" \
+  -F "challenge=@test_challenge_with_question_multimedia.json;type=application/json" \
+  -F "multimedias=@C:/Users/Oussama/Desktop/images/random/challenge_download.jpg" \
+  -F "multimedias=@C:/Users/Oussama/Desktop/images/random/challenge_images1.png" \
+  -F "multimedias=@C:/Users/Oussama/Desktop/images/random/challenge_images2.jpg" \
+  -F "multimedias=@C:/Users/Oussama/Desktop/images/random/question0_download1.jpg" \
+  -F "multimedias=@C:/Users/Oussama/Desktop/images/random/question1_images1.png" 

@@ -1,0 +1,37 @@
+{
+  "nom": "Simple Test Challenge",
+  "description": "A simple test challenge",
+  "statut": "ACTIVE",
+  "niveau": "BEGINNER",
+  "difficulte": "EASY",
+  "datePublication": "2024-01-15T10:00:00",
+  "methodeDeCalcule": "BASED_ON_TIME",
+  "messageSucces": "Success!",
+  "messageEchec": "Failed!",
+  "timer": 300,
+  "nbTentatives": 3,
+  "scoreConfiguration": {
+    "method": "NB_BONNES_REPONSES",
+    "parameters": ["10", "5"]
+  },
+  "questions": [
+    {
+      "texte": "What is 2+2?",
+      "type": "MULTIPLE_CHOICE",
+      "ordre": 1,
+      "points": 10,
+      "duree": 60,
+      "isRequired": true,
+      "reponses": [
+        {
+          "texte": "4",
+          "estCorrecte": true
+        },
+        {
+          "texte": "3",
+          "estCorrecte": false
+        }
+      ]
+    }
+  ]
+} 

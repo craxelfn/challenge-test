@@ -1,0 +1,1 @@
+curl -X POST "http://localhost:9094/api/challenges/challenges" -F "challenge=@test_simple_challenge.json" -F "multimedias=@C:/Users/Oussama/Desktop/images/random/challenge_download.jpg" 
