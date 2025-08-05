@@ -60,6 +60,12 @@ public class TropheeController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{uuid}")
+    public ResponseEntity<TropheeDTO> getTropheeByUuid(@PathVariable String uuid) {
+        TropheeDTO dto = tropheeService.getTropheeByUuid(uuid);
+        return ResponseEntity.ok(dto);
+    }
+
     @GetMapping("/by-challenge/{challengeUuid}")
     public ResponseEntity<org.springframework.data.domain.Page<TropheeDTO>> getTropheesByChallengeUuid(
             @PathVariable String challengeUuid,

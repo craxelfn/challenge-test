@@ -3,6 +3,7 @@ package com.marketingconfort.challenge.dto;
 import lombok.Data;
 import java.util.List ; 
 import com.marketingconfort.challenge.enums.TropheeType;
+import com.marketingconfort.challenge.dto.ChallengeShortDTO;
 
 @Data
 public class TropheeDTO {
@@ -15,5 +16,5 @@ public class TropheeDTO {
     private int tempsMaximum;
     private int tentativeMaximum;
     private boolean allQuestionsNeedToValide;
-    private List<String> challengeUuids;
+    private List<ChallengeShortDTO> challengeUuids;
 } 

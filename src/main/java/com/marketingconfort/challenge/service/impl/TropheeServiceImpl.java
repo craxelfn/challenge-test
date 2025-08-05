@@ -34,16 +34,22 @@ public class TropheeServiceImpl implements TropheeService {
     public TropheeDTO createTrophee(String titre, TropheeType type, String description, double scoreMin, int tempsMaximum, int tentativeMaximum, boolean allQuestionsNeedToValide, java.util.List<String> challengeUuids, MultipartFile icone) {
         String iconeUuid = null;
         try {
+            java.util.List<Challenge> challenges = challengeRepository.findAllByUuidIn(challengeUuids);
+            // Validation: scoreMin <= sum of all challenge question points
+            double totalScore = challenges.stream()
+                .flatMap(c -> c.getQuestions().stream())
+                .mapToDouble(q -> q.getPoints())
+                .sum();
+            if (scoreMin > totalScore) {
+                throw new RuntimeException("scoreMin cannot be greater than the total score of all assigned challenges (" + totalScore + ")");
+            }
+            // Validation: tentativeMaximum <= min of all challenge attemptCounts
+            int minTentative = challenges.stream().mapToInt(Challenge::getAttemptCount).min().orElse(0);
+            if (tentativeMaximum > minTentative) {
+                throw new RuntimeException("tentativeMaximum cannot be greater than the minimum attemptCount of all assigned challenges (" + minTentative + ")");
+            }
             MultimediaInfo iconInfo = uploadIconAndGetInfo(icone);
             iconeUuid = iconInfo != null ? iconInfo.getUuid() : null;
-
-            java.util.List<Challenge> challenges = new java.util.ArrayList<>();
-            for (String challengeUuid : challengeUuids) {
-                Challenge challenge = challengeRepository.findByUuid(challengeUuid);
-                if (challenge == null) throw new RuntimeException("Challenge not found with uuid: " + challengeUuid);
-                challenges.add(challenge);
-            }
-
             Trophee trophee = new Trophee();
             trophee.setTitre(titre);
             trophee.setType(type);
@@ -89,6 +95,20 @@ public class TropheeServiceImpl implements TropheeService {
         String newIconeUuid = null;
         boolean iconUpdated = false;
         try {
+            java.util.List<Challenge> challenges = challengeRepository.findAllByUuidIn(challengeUuids);
+            // Validation: scoreMin <= sum of all challenge question points
+            double totalScore = challenges.stream()
+                .flatMap(c -> c.getQuestions().stream())
+                .mapToDouble(q -> q.getPoints())
+                .sum();
+            if (scoreMin > totalScore) {
+                throw new RuntimeException("scoreMin cannot be greater than the total score of all assigned challenges (" + totalScore + ")");
+            }
+            // Validation: tentativeMaximum <= min of all challenge attemptCounts
+            int minTentative = challenges.stream().mapToInt(Challenge::getAttemptCount).min().orElse(0);
+            if (tentativeMaximum > minTentative) {
+                throw new RuntimeException("tentativeMaximum cannot be greater than the minimum attemptCount of all assigned challenges (" + minTentative + ")");
+            }
             if (icone != null && !icone.isEmpty()) {
                 // Upload new icon
                 MultimediaInfo iconInfo = uploadIconAndGetInfo(icone);
@@ -110,15 +130,7 @@ public class TropheeServiceImpl implements TropheeService {
             trophee.setTempsMaximum(tempsMaximum);
             trophee.setTentativeMaximum(tentativeMaximum);
             trophee.setAllQuestionsNeedToValide(allQuestionsNeedToValide);
-            if (challengeUuids != null) {
-                java.util.List<Challenge> challenges = new java.util.ArrayList<>();
-                for (String challengeUuid : challengeUuids) {
-                    Challenge challenge = challengeRepository.findByUuid(challengeUuid);
-                    if (challenge == null) throw new RuntimeException("Challenge not found with uuid: " + challengeUuid);
-                    challenges.add(challenge);
-                }
-                trophee.setChallenges(challenges);
-            }
+            trophee.setChallenges(challenges);
             Trophee saved = tropheeRepository.save(trophee);
             // If icon was updated and update succeeded, delete old icon
             if (iconUpdated && oldIconeUuid != null) {
@@ -177,6 +189,13 @@ public class TropheeServiceImpl implements TropheeService {
             dtos.add(tropheeMapper.toDto(t));
         }
         return new org.springframework.data.domain.PageImpl<>(dtos, tropheePage.getPageable(), tropheePage.getTotalElements());
+    }
+
+    @Override
+    public TropheeDTO getTropheeByUuid(String uuid) {
+        Trophee trophee = tropheeRepository.findByUuid(uuid);
+        if (trophee == null) throw new RuntimeException("Trophee not found with uuid: " + uuid);
+        return tropheeMapper.toDto(trophee);
     }
 
     private MultimediaInfo uploadIconAndGetInfo(MultipartFile icone) {

@@ -10,4 +10,5 @@ public interface TropheeService {
     TropheeDTO updateTrophee(String uuid, String titre, TropheeType type, String description, double scoreMin, int tempsMaximum, int tentativeMaximum, boolean allQuestionsNeedToValide, java.util.List<String> challengeUuids, MultipartFile icone);
     void deleteTrophee(String uuid);
     Page<TropheeDTO> getTropheesByChallengeUuid(String challengeUuid, int page, int size);
+    TropheeDTO getTropheeByUuid(String uuid);
 } 

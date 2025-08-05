@@ -1,6 +1,8 @@
 package com.marketingconfort.challenge.mapper;
 
 import com.marketingconfort.challenge.dto.TropheeDTO;
+import com.marketingconfort.challenge.dto.ChallengeSimpleDTO;
+import com.marketingconfort.challenge.dto.ChallengeShortDTO;
 import com.marketingconfort.challenge.models.Trophee;
 import com.marketingconfort.challenge.models.Challenge;
 import org.mapstruct.Mapper;
@@ -10,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface TropheeMapper {
-    @Mapping(target = "challengeUuids", expression = "java(toChallengeUuids(entity.getChallenges()))")
+    @Mapping(target = "challengeUuids", expression = "java(toChallengeShortDTOs(entity.getChallenges()))")
     @Mapping(source = "uuid", target = "uuid")
     @Mapping(source = "iconeMultimediaInfo", target = "icone")
     TropheeDTO toDto(Trophee entity);
@@ -23,9 +25,14 @@ public interface TropheeMapper {
     @Mapping(target = "id", ignore = true)
     Trophee toEntity(TropheeDTO dto);
 
-    default List<String> toChallengeUuids(List<Challenge> challenges) {
+    default List<ChallengeSimpleDTO> toChallengeSimpleDTOs(List<Challenge> challenges) {
         if (challenges == null) return null;
-        return challenges.stream().map(Challenge::getUuid).collect(Collectors.toList());
+        return challenges.stream().map(challenge -> {
+            ChallengeSimpleDTO dto = new ChallengeSimpleDTO();
+            dto.setUuid(challenge.getUuid());
+            dto.setNom(challenge.getName());
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     default List<Challenge> toChallenges(List<String> challengeUuids) {
@@ -34,6 +41,16 @@ public interface TropheeMapper {
             Challenge c = new Challenge();
             c.setUuid(uuid);
             return c;
+        }).collect(Collectors.toList());
+    }
+
+    default List<ChallengeShortDTO> toChallengeShortDTOs(List<Challenge> challenges) {
+        if (challenges == null) return null;
+        return challenges.stream().map(challenge -> {
+            ChallengeShortDTO dto = new ChallengeShortDTO();
+            dto.setUuid(challenge.getUuid());
+            dto.setName(challenge.getName());
+            return dto;
         }).collect(Collectors.toList());
     }
 } 
