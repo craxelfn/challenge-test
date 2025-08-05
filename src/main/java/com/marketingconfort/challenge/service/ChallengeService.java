@@ -5,6 +5,8 @@ import com.marketingconfort.challenge.dto.ChallengeDTO;
 import com.marketingconfort.challenge.dto.ChallengeListDTO;
 import com.marketingconfort.challenge.dto.request.ChallengeCreateRequestDTO;
 import com.marketingconfort.challenge.dto.request.ChallengeSearchCriteriaDTO;
+import com.marketingconfort.challenge.dto.request.ChallengeUpdateStep1RequestDTO;
+import com.marketingconfort.challenge.dto.request.ChallengeUpdateStep2RequestDTO;
 import com.marketingconfort.challenge.models.Challenge;
 
 import java.util.List;
@@ -21,4 +23,6 @@ public interface ChallengeService {
     Page<Challenge> searchChallengesEntities(ChallengeSearchCriteriaDTO criteria, int page, int size);
     void deleteMultipleChallenges(List<String> uuids);
     ChallengeDTO participate(String uuid);
+    ChallengeDTO updateChallengeStep1(String uuid, ChallengeUpdateStep1RequestDTO dto, java.util.List<org.springframework.web.multipart.MultipartFile> multimedias);
+    ChallengeDTO updateChallengeStep2(String uuid, ChallengeUpdateStep2RequestDTO dto);
 }

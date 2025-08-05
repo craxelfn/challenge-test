@@ -40,4 +40,5 @@ public class ChallengeCreateRequestDTO {
     @NotNull
     private List<QuestionCreateRequestDTO> questions;
     private String uuid;
+    private Double minPassingScore;
 } 

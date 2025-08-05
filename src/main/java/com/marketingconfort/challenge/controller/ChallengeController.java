@@ -16,6 +16,8 @@ import com.marketingconfort.challenge.dto.ChallengeSimpleDTO;
 import com.marketingconfort.challenge.dto.ScoreConfigurationSimpleDTO;
 import com.marketingconfort.challenge.dto.request.ChallengeCreateRequestDTO;
 import com.marketingconfort.challenge.dto.request.ChallengeSearchCriteriaDTO;
+import com.marketingconfort.challenge.dto.request.ChallengeUpdateStep1RequestDTO;
+import com.marketingconfort.challenge.dto.request.ChallengeUpdateStep2RequestDTO;
 import com.marketingconfort.challenge.models.Challenge;
 import com.marketingconfort.challenge.repository.ChallengeRepository;
 import com.marketingconfort.challenge.service.ChallengeService;
@@ -27,7 +29,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
-
+import org.springframework.web.bind.annotation.PutMapping;
 
 
 @RestController
@@ -170,6 +172,25 @@ public class ChallengeController {
     public ResponseEntity<Void> deleteMultipleChallenges(@RequestBody List<String> challengeUuids) {
         challengeService.deleteMultipleChallenges(challengeUuids);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value = "/{uuid}/step1", consumes = { "multipart/form-data" })
+    public ResponseEntity<ChallengeDTO> updateChallengeStep1(
+        @PathVariable String uuid,
+        @RequestPart("challenge") ChallengeUpdateStep1RequestDTO dto,
+        @RequestPart(value = "multimedias", required = false) List<MultipartFile> multimedias
+    ) {
+        ChallengeDTO updated = challengeService.updateChallengeStep1(uuid, dto, multimedias);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping(value = "/{uuid}/step2")
+    public ResponseEntity<ChallengeDTO> updateChallengeStep2(
+        @PathVariable String uuid,
+        @RequestBody ChallengeUpdateStep2RequestDTO dto
+    ) {
+        ChallengeDTO updated = challengeService.updateChallengeStep2(uuid, dto);
+        return ResponseEntity.ok(updated);
     }
     
     private ChallengeSimpleDTO mapToChallengeSimpleDTO(Challenge challenge) {

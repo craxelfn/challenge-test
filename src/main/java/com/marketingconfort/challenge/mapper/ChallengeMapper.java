@@ -58,6 +58,7 @@ public interface ChallengeMapper {
     @Mapping(source = "multimediaInfo", target = "multimedia", qualifiedByName = "mapMultimediaInfoToDto")
     @Mapping(source = "questions", target = "questions", qualifiedByName = "mapQuestionsToDto")
     @Mapping(source = "description", target = "description")
+    @Mapping(target = "maxScore", expression = "java(challenge.getQuestions() != null ? challenge.getQuestions().stream().mapToDouble(q -> q.getPoints()).sum() : 0.0)")
     ChallengeDTO toDto(Challenge challenge);
 
     @Named("mapQuestions")
@@ -162,5 +163,23 @@ public interface ChallengeMapper {
             dtos.add(dto);
         }
         return dtos;
+    }
+
+    default java.util.List<com.marketingconfort.challenge.dto.AnswerDTO> mapAllAnswers(com.marketingconfort.challenge.models.Challenge challenge) {
+        java.util.List<com.marketingconfort.challenge.dto.AnswerDTO> allAnswers = new java.util.ArrayList<>();
+        if (challenge.getQuestions() != null) {
+            for (com.marketingconfort.challenge.models.Question q : challenge.getQuestions()) {
+                if (q.getAnswers() != null) {
+                    for (com.marketingconfort.challenge.models.Answer a : q.getAnswers()) {
+                        com.marketingconfort.challenge.dto.AnswerDTO dto = new com.marketingconfort.challenge.dto.AnswerDTO();
+                        dto.setUuid(a.getUuid());
+                        dto.setTexte(a.getTexte());
+                        dto.setIsCorrect(a.getIsCorrect());
+                        allAnswers.add(dto);
+                    }
+                }
+            }
+        }
+        return allAnswers;
     }
 }

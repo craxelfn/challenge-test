@@ -62,6 +62,7 @@ public class Challenge {
     private String successMessage;
 
     private double minPassingScore;
+    private double maxScore;
 
     @Column(nullable = false)
     private String failureMessage;

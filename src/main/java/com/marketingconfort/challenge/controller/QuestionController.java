@@ -3,6 +3,7 @@ package com.marketingconfort.challenge.controller;
 import com.marketingconfort.challenge.dto.ChallengeDTO;
 import com.marketingconfort.challenge.dto.request.QuestionCreateRequestDTO;
 import com.marketingconfort.challenge.dto.request.QuestionUpdateRequestDTO;
+import com.marketingconfort.challenge.dto.request.ChallengeUpdateStep3RequestDTO;
 import com.marketingconfort.challenge.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,16 @@ public class QuestionController {
             @RequestPart(value = "multimedias", required = false) List<org.springframework.web.multipart.MultipartFile> multimedias
     ) {
         ChallengeDTO updated = questionService.updateMultipleQuestions(challengeUuid, questions, multimedias);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping(value = "/bulk-update", consumes = {"multipart/form-data"})
+    public ResponseEntity<ChallengeDTO> bulkUpdateQuestions(
+            @PathVariable String challengeUuid,
+            @RequestPart("data") ChallengeUpdateStep3RequestDTO data,
+            @RequestPart(value = "multimedias", required = false) List<MultipartFile> multimedias
+    ) {
+        ChallengeDTO updated = questionService.bulkUpdateQuestions(challengeUuid, data, multimedias);
         return ResponseEntity.ok(updated);
     }
 } 

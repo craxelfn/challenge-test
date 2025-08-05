@@ -250,6 +250,92 @@ public class QuestionServiceImpl implements QuestionService {
         }
     }
 
+    @Override
+    @Transactional
+    public ChallengeDTO bulkUpdateQuestions(String challengeUuid, com.marketingconfort.challenge.dto.request.ChallengeUpdateStep3RequestDTO data, List<MultipartFile> multimedias) {
+        Challenge challenge = challengeRepository.findByUuid(challengeUuid);
+        if (challenge == null) throw new RuntimeException("Challenge not found");
+        // 1. Delete questions by UUID
+        if (data.getDeletedQuestionUuids() != null && !data.getDeletedQuestionUuids().isEmpty()) {
+            for (String qUuid : data.getDeletedQuestionUuids()) {
+                Question q = questionRepository.findByUuid(qUuid);
+                if (q != null && q.getChallenge() != null && q.getChallenge().getUuid().equals(challengeUuid)) {
+                    questionRepository.delete(q);
+                }
+            }
+        }
+        // 2. Add new questions (with answers and images)
+        List<Question> newQuestions = new ArrayList<>();
+        Map<String, MultimediaInfo> fileNameToMultimediaInfo = new HashMap<>();
+        List<MultipartFile> filesToUpload = new ArrayList<>();
+        if (multimedias != null) {
+            for (MultipartFile file : multimedias) {
+                if (file != null && !file.isEmpty()) {
+                    filesToUpload.add(file);
+                }
+            }
+        }
+        if (!filesToUpload.isEmpty()) {
+            fileNameToMultimediaInfo = uploadFilesAndMapByName(filesToUpload);
+        }
+        List<QuestionCreateRequestDTO> questionsToAdd = data.getNewQuestions();
+        if (questionsToAdd != null) {
+            for (int i = 0; i < questionsToAdd.size(); i++) {
+                QuestionCreateRequestDTO dto = questionsToAdd.get(i);
+                MultipartFile file = null;
+                if (multimedias != null) {
+                    for (MultipartFile f : multimedias) {
+                        String filename = f.getOriginalFilename();
+                        if (filename != null && filename.startsWith("question" + i + "_")) {
+                            file = f;
+                            break;
+                        }
+                    }
+                }
+                String multimediaUuid = null;
+                String multimediaUrl = null;
+                String filename = file != null ? file.getOriginalFilename() : null;
+                if (filename != null && fileNameToMultimediaInfo.containsKey(filename)) {
+                    MultimediaInfo info = fileNameToMultimediaInfo.get(filename);
+                    multimediaUuid = info.getUuid();
+                    multimediaUrl = info.getUrl();
+                }
+                Question question = questionMapper.toEntity(dto);
+                if (multimediaUuid != null) {
+                    com.marketingconfort.challenge.models.MultimediaInfo multimediaInfo = new com.marketingconfort.challenge.models.MultimediaInfo();
+                    multimediaInfo.setUuid(multimediaUuid);
+                    multimediaInfo.setUrl(multimediaUrl);
+                    question.setMultimediaInfo(multimediaInfo);
+                }
+                question.setChallenge(challenge);
+                // Map answers if present
+                if (dto.getReponses() != null) {
+                    List<com.marketingconfort.challenge.models.Answer> answers = new ArrayList<>();
+                    for (com.marketingconfort.challenge.dto.request.AnswerCreateRequestDTO answerDto : dto.getReponses()) {
+                        com.marketingconfort.challenge.models.Answer answer = new com.marketingconfort.challenge.models.Answer();
+                        answer.setTexte(answerDto.getTexte());
+                        answer.setIsCorrect(answerDto.isEstCorrecte());
+                        answer.setQuestion(question);
+                        answers.add(answer);
+                    }
+                    question.setAnswers(answers);
+                }
+                newQuestions.add(question);
+            }
+            questionRepository.saveAll(newQuestions);
+        }
+        // 3. Update challenge's max score (sum of all question points)
+        List<Question> allQuestions = questionRepository.findByChallenge_Uuid(challengeUuid);
+        double maxScore = allQuestions.stream().mapToDouble(Question::getPoints).sum();
+        challenge.setMaxScore(maxScore);
+        // Set minPassingScore if provided
+        if (data.getMinPassingScore() != null) {
+            challenge.setMinPassingScore(data.getMinPassingScore());
+        }
+        challengeRepository.save(challenge);
+        return challengeMapper.toDto(challengeRepository.findByUuid(challengeUuid));
+    }
+
     private Map<String, MultimediaInfo> uploadFilesAndMapByName(List<MultipartFile> files) {
         Map<String, MultimediaInfo> fileNameToMultimediaInfo = new HashMap<>();
         if (files == null || files.isEmpty()) return fileNameToMultimediaInfo;

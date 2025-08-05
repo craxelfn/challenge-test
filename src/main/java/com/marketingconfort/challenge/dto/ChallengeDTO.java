@@ -8,6 +8,7 @@ import com.marketingconfort.challenge.enums.CalculationMethod;
 import com.marketingconfort.challenge.models.ScoreConfiguration;
 import com.marketingconfort.challenge.models.Prerequisite;
 import lombok.Data;
+import com.marketingconfort.challenge.dto.AnswerDTO;
 
 @Data
 public class ChallengeDTO {
@@ -32,4 +33,5 @@ public class ChallengeDTO {
     private List<MultimediaDTO> multimedia;
     private List<QuestionDTO> questions;
     private String description;
+    private double maxScore;
 }

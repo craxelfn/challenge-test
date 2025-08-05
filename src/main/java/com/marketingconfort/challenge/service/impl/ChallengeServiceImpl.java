@@ -152,6 +152,13 @@ public class ChallengeServiceImpl  implements ChallengeService{
                 .map(com.marketingconfort.challenge.models.MultimediaInfo::getUuid)
                 .collect(Collectors.toList()));
             challenge.setMultimediaInfo(challengeMultimediaInfo);
+            // Set maxScore as sum of all question points
+            if (challenge.getQuestions() != null) {
+                double maxScore = challenge.getQuestions().stream().mapToDouble(q -> q.getPoints()).sum();
+                challenge.setMaxScore(maxScore);
+            } else {
+                challenge.setMaxScore(0.0);
+            }
             
             // Handle ScoreConfiguration
             if (challengeDTO.getScoreConfiguration() != null) {
@@ -452,6 +459,75 @@ public class ChallengeServiceImpl  implements ChallengeService{
         if (challenge == null) throw new RuntimeException("Challenge not found with uuid: " + uuid);
         challenge.setParticipantNumber(challenge.getParticipantNumber() + 1);
         var saved = challengeRepository.save(challenge);
+        return challengeMapper.toDto(saved);
+    }
+
+    @Override
+    public ChallengeDTO updateChallengeStep1(String uuid, com.marketingconfort.challenge.dto.request.ChallengeUpdateStep1RequestDTO dto, java.util.List<org.springframework.web.multipart.MultipartFile> multimedias) {
+        Challenge challenge = challengeRepository.findByUuid(uuid);
+        if (challenge == null) throw new RuntimeException("Challenge not found");
+        if (dto.getNom() != null) challenge.setName(dto.getNom());
+        if (dto.getStatut() != null) challenge.setStatut(com.marketingconfort.challenge.enums.ChallengeStatus.valueOf(dto.getStatut()));
+        if (dto.getDescription() != null) challenge.setDescription(dto.getDescription());
+        if (dto.getDifficulte() != null) challenge.setDifficulty(com.marketingconfort.challenge.enums.Difficulty.valueOf(dto.getDifficulte()));
+        if (dto.getNiveau() != null) challenge.setLevel(dto.getNiveau());
+        if (dto.getDatePublication() != null) challenge.setPublicationDate(java.time.LocalDateTime.parse(dto.getDatePublication()));
+        // Handle images: delete old, add new
+        if (multimedias != null && !multimedias.isEmpty()) {
+            // Delete old images (call multimedia service with old UUIDs)
+            java.util.List<String> oldUuids = new java.util.ArrayList<>();
+            if (challenge.getMultimediaInfo() != null) {
+                for (com.marketingconfort.challenge.models.MultimediaInfo info : challenge.getMultimediaInfo()) {
+                    if (info.getUuid() != null) oldUuids.add(info.getUuid());
+                }
+            }
+            if (!oldUuids.isEmpty()) {
+                try {
+                    org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+                    headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+                    java.util.Map<String, Object> body = new java.util.HashMap<>();
+                    body.put("multimediaUuids", oldUuids);
+                    body.put("action", "delete");
+                    org.springframework.http.HttpEntity<java.util.Map<String, Object>> request = new org.springframework.http.HttpEntity<>(body, headers);
+                    restTemplate.postForEntity("http://localhost:7077/api/multimedia/bulk-operations", request, Void.class);
+                } catch (Exception ignore) {}
+            }
+            // Upload new images
+            java.util.List<com.marketingconfort.challenge.models.MultimediaInfo> newInfos = new java.util.ArrayList<>();
+            java.util.Map<String, com.marketingconfort.challenge.dto.MultimediaInfo> fileNameToInfo = uploadFilesAndMapByName(multimedias);
+            for (org.springframework.web.multipart.MultipartFile file : multimedias) {
+                if (file != null && !file.isEmpty()) {
+                    String filename = file.getOriginalFilename();
+                    com.marketingconfort.challenge.dto.MultimediaInfo info = fileNameToInfo.get(filename);
+                    if (info != null) {
+                        com.marketingconfort.challenge.models.MultimediaInfo m = new com.marketingconfort.challenge.models.MultimediaInfo();
+                        m.setUuid(info.getUuid());
+                        m.setUrl(info.getUrl());
+                        newInfos.add(m);
+                    }
+                }
+            }
+            challenge.setMultimediaInfo(newInfos);
+        }
+        Challenge saved = challengeRepository.save(challenge);
+        return challengeMapper.toDto(saved);
+    }
+
+    @Override
+    public ChallengeDTO updateChallengeStep2(String uuid, com.marketingconfort.challenge.dto.request.ChallengeUpdateStep2RequestDTO dto) {
+        Challenge challenge = challengeRepository.findByUuid(uuid);
+        if (challenge == null) throw new RuntimeException("Challenge not found");
+        if (dto.getNbTentatives() != null) challenge.setAttemptCount(dto.getNbTentatives());
+        if (dto.getRandomQuestions() != null) challenge.setRandomQuestions(dto.getRandomQuestions());
+        if (dto.getMethodeDeCalcule() != null) challenge.setCalculationMethod(com.marketingconfort.challenge.enums.CalculationMethod.valueOf(dto.getMethodeDeCalcule()));
+        if (dto.getPrerequisUuid() != null) {
+            // You may need to fetch and set the prerequisite entity here
+            // challenge.setPrerequisite(...)
+        }
+        if (dto.getMinPassingScore() != null) challenge.setMinPassingScore(dto.getMinPassingScore());
+        if (dto.getMessageSucces() != null) challenge.setSuccessMessage(dto.getMessageSucces());
+        if (dto.getMessageEchec() != null) challenge.setFailureMessage(dto.getMessageEchec());
+        Challenge saved = challengeRepository.save(challenge);
         return challengeMapper.toDto(saved);
     }
 
