@@ -524,7 +524,6 @@ public class ChallengeServiceImpl  implements ChallengeService{
             // You may need to fetch and set the prerequisite entity here
             // challenge.setPrerequisite(...)
         }
-        if (dto.getMinPassingScore() != null) challenge.setMinPassingScore(dto.getMinPassingScore());
         if (dto.getMessageSucces() != null) challenge.setSuccessMessage(dto.getMessageSucces());
         if (dto.getMessageEchec() != null) challenge.setFailureMessage(dto.getMessageEchec());
         Challenge saved = challengeRepository.save(challenge);
