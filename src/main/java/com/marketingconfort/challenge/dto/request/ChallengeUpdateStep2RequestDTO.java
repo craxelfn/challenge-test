@@ -8,6 +8,7 @@ public class ChallengeUpdateStep2RequestDTO {
     private Boolean randomQuestions;
     private String methodeDeCalcule;
     private String prerequisUuid;
+    private String prerequisMinScore;
     private String messageSucces;
     private String messageEchec;
 }
