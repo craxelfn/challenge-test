@@ -112,7 +112,8 @@ public class QuestionServiceImpl implements QuestionService {
             }
             challenge.getQuestions().addAll(newQuestions);
             challengeRepository.save(challenge);
-            return challengeMapper.toDto(challenge);
+            // Return full ChallengeDTO like getChallengeByUuid
+            return challengeMapper.toDto(challengeRepository.findByUuid(challengeUuid));
         } catch (Exception ex) {
             if (!uploadedUuids.isEmpty()) {
                 try {
@@ -229,6 +230,7 @@ public class QuestionServiceImpl implements QuestionService {
                     log.error("Failed to delete old multimedia: {}", ex.getMessage());
                 }
             }
+            // Return full ChallengeDTO like getChallengeByUuid
             return challengeMapper.toDto(challengeRepository.findByUuid(challengeUuid));
         } catch (Exception ex) {
             // Rollback: delete all newly uploaded media
@@ -332,6 +334,7 @@ public class QuestionServiceImpl implements QuestionService {
             challenge.setMinPassingScore(data.getMinPassingScore());
         }
         challengeRepository.save(challenge);
+        // Return full ChallengeDTO like getChallengeByUuid
         return challengeMapper.toDto(challengeRepository.findByUuid(challengeUuid));
     }
 

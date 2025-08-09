@@ -516,7 +516,8 @@ public class ChallengeServiceImpl  implements ChallengeService{
             challenge.setMultimediaInfo(newInfos);
         }
         Challenge saved = challengeRepository.save(challenge);
-        return challengeMapper.toDto(saved);
+        // Return full ChallengeDTO like getChallengeByUuid
+        return getChallengeByUuid(saved.getUuid());
     }
 
     @Override
@@ -533,7 +534,8 @@ public class ChallengeServiceImpl  implements ChallengeService{
         if (dto.getMessageSucces() != null) challenge.setSuccessMessage(dto.getMessageSucces());
         if (dto.getMessageEchec() != null) challenge.setFailureMessage(dto.getMessageEchec());
         Challenge saved = challengeRepository.save(challenge);
-        return challengeMapper.toDto(saved);
+        // Return full ChallengeDTO like getChallengeByUuid
+        return getChallengeByUuid(saved.getUuid());
     }
 
     private Map<String, MultimediaInfo> uploadFilesAndMapByName(List<MultipartFile> files) {
