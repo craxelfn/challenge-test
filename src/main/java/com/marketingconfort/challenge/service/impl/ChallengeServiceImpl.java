@@ -156,6 +156,15 @@ public class ChallengeServiceImpl  implements ChallengeService{
             } else {
                 challenge.setMaxScore(0.0);
             }
+
+            // Treat minPassingScore as percentage (1-100)
+            if (challengeDTO.getMinPassingScore() != null) {
+                double minPct = challengeDTO.getMinPassingScore();
+                if (minPct < 1 || minPct > 100) {
+                    throw new RuntimeException("minPassingScore must be a percentage between 1 and 100");
+                }
+                challenge.setMinPassingScore(minPct);
+            }
             
             // Handle ScoreConfiguration
             if (challengeDTO.getScoreConfiguration() != null) {

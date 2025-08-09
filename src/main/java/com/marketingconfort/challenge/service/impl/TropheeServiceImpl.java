@@ -35,13 +35,12 @@ public class TropheeServiceImpl implements TropheeService {
         String iconeUuid = null;
         try {
             java.util.List<Challenge> challenges = challengeRepository.findAllByUuidIn(challengeUuids);
-            // Validation: scoreMin <= sum of all challenge question points
-            double totalScore = challenges.stream()
-                .flatMap(c -> c.getQuestions().stream())
-                .mapToDouble(q -> q.getPoints())
-                .sum();
-            if (scoreMin > totalScore) {
-                throw new RuntimeException("scoreMin cannot be greater than the total score of all assigned challenges (" + totalScore + ")");
+            // Treat scoreMin and tempsMaximum as percentages between 1 and 100
+            if (scoreMin < 1 || scoreMin > 100) {
+                throw new RuntimeException("scoreMin must be a percentage between 1 and 100");
+            }
+            if (tempsMaximum < 1 || tempsMaximum > 100) {
+                throw new RuntimeException("tempsMaximum must be a percentage between 1 and 100");
             }
             // Validation: tentativeMaximum <= min of all challenge attemptCounts
             int minTentative = challenges.stream().mapToInt(Challenge::getAttemptCount).min().orElse(0);
@@ -96,13 +95,12 @@ public class TropheeServiceImpl implements TropheeService {
         boolean iconUpdated = false;
         try {
             java.util.List<Challenge> challenges = challengeRepository.findAllByUuidIn(challengeUuids);
-            // Validation: scoreMin <= sum of all challenge question points
-            double totalScore = challenges.stream()
-                .flatMap(c -> c.getQuestions().stream())
-                .mapToDouble(q -> q.getPoints())
-                .sum();
-            if (scoreMin > totalScore) {
-                throw new RuntimeException("scoreMin cannot be greater than the total score of all assigned challenges (" + totalScore + ")");
+            // Treat scoreMin and tempsMaximum as percentages between 1 and 100
+            if (scoreMin < 1 || scoreMin > 100) {
+                throw new RuntimeException("scoreMin must be a percentage between 1 and 100");
+            }
+            if (tempsMaximum < 1 || tempsMaximum > 100) {
+                throw new RuntimeException("tempsMaximum must be a percentage between 1 and 100");
             }
             // Validation: tentativeMaximum <= min of all challenge attemptCounts
             int minTentative = challenges.stream().mapToInt(Challenge::getAttemptCount).min().orElse(0);
