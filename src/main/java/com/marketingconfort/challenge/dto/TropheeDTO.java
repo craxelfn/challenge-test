@@ -3,7 +3,6 @@ package com.marketingconfort.challenge.dto;
 import lombok.Data;
 import java.util.List ; 
 import com.marketingconfort.challenge.enums.TropheeType;
-import com.marketingconfort.challenge.dto.ChallengeShortDTO;
 
 @Data
 public class TropheeDTO {
