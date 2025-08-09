@@ -3,8 +3,10 @@ package com.marketingconfort.challenge.mapper;
 import com.marketingconfort.challenge.dto.TropheeDTO;
 import com.marketingconfort.challenge.dto.ChallengeSimpleDTO;
 import com.marketingconfort.challenge.dto.ChallengeShortDTO;
+import com.marketingconfort.challenge.dto.MultimediaDTO;
 import com.marketingconfort.challenge.models.Trophee;
 import com.marketingconfort.challenge.models.Challenge;
+import com.marketingconfort.challenge.models.MultimediaInfo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import java.util.List;
@@ -14,7 +16,7 @@ import java.util.stream.Collectors;
 public interface TropheeMapper {
     @Mapping(target = "challengeUuids", expression = "java(toChallengeShortDTOs(entity.getChallenges()))")
     @Mapping(source = "uuid", target = "uuid")
-    @Mapping(source = "iconeMultimediaInfo", target = "icone")
+    @Mapping(target = "icone", expression = "java(toMultimediaDTO(entity.getIconeMultimediaInfo()))")
     TropheeDTO toDto(Trophee entity);
 
     @Mapping(target = "challenges", expression = "java(toChallengesFromShortDTOs(dto.getChallengeUuids()))")
@@ -52,6 +54,16 @@ public interface TropheeMapper {
             c.setUuid(shortDto.getUuid());
             return c;
         }).collect(Collectors.toList());
+    }
+
+    // Explicit mapping for nested multimedia to help MapStruct
+    default MultimediaDTO toMultimediaDTO(MultimediaInfo info) {
+        if (info == null) return null;
+        MultimediaDTO dto = new MultimediaDTO();
+        dto.setUuid(info.getUuid());
+        dto.setUrl(info.getUrl());
+        dto.setType("image");
+        return dto;
     }
 
     default List<ChallengeShortDTO> toChallengeShortDTOs(List<Challenge> challenges) {
