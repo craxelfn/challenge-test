@@ -13,9 +13,7 @@ import com.marketingconfort.challenge.models.Challenge;
 @Repository
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> , JpaSpecificationExecutor<Challenge > {
     Challenge findByUuid(String uuid);
-
-
-    Challenge findByUuid(String uuid);
+    
     
     @Query("SELECT q FROM Question q LEFT JOIN FETCH q.multimediaInfo LEFT JOIN FETCH q.answers WHERE q.challenge.uuid = :challengeUuid")
     List<com.marketingconfort.challenge.models.Question> findQuestionsByChallengeUuid(@Param("challengeUuid") String challengeUuid);

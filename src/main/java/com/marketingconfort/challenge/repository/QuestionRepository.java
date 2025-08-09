@@ -10,5 +10,6 @@ import com.marketingconfort.challenge.models.Question;
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSpecificationExecutor<Question  > {
     Question findByUuid(String uuid);
+    java.util.List<Question> findByChallenge_Uuid(String challengeUuid);
 }
     

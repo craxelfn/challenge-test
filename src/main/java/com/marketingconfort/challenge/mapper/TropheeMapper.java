@@ -44,6 +44,16 @@ public interface TropheeMapper {
         }).collect(Collectors.toList());
     }
 
+    // Overload to support DTOs carrying ChallengeShortDTO objects
+    default List<Challenge> toChallenges(List<ChallengeShortDTO> challengeShortDTOs) {
+        if (challengeShortDTOs == null) return null;
+        return challengeShortDTOs.stream().map(shortDto -> {
+            Challenge c = new Challenge();
+            c.setUuid(shortDto.getUuid());
+            return c;
+        }).collect(Collectors.toList());
+    }
+
     default List<ChallengeShortDTO> toChallengeShortDTOs(List<Challenge> challenges) {
         if (challenges == null) return null;
         return challenges.stream().map(challenge -> {
