@@ -17,7 +17,7 @@ public interface TropheeMapper {
     @Mapping(source = "iconeMultimediaInfo", target = "icone")
     TropheeDTO toDto(Trophee entity);
 
-    @Mapping(target = "challenges", expression = "java(toChallenges(dto.getChallengeUuids()))")
+    @Mapping(target = "challenges", expression = "java(toChallengesFromShortDTOs(dto.getChallengeUuids()))")
     @Mapping(source = "uuid", target = "uuid")
     @Mapping(target = "dateCreation", ignore = true)
     @Mapping(target = "dateUpdate", ignore = true)
@@ -44,8 +44,8 @@ public interface TropheeMapper {
         }).collect(Collectors.toList());
     }
 
-    // Overload to support DTOs carrying ChallengeShortDTO objects
-    default List<Challenge> toChallenges(List<ChallengeShortDTO> challengeShortDTOs) {
+    // Distinctly named method to avoid type-erasure clash with toChallenges(List<String>)
+    default List<Challenge> toChallengesFromShortDTOs(List<ChallengeShortDTO> challengeShortDTOs) {
         if (challengeShortDTOs == null) return null;
         return challengeShortDTOs.stream().map(shortDto -> {
             Challenge c = new Challenge();

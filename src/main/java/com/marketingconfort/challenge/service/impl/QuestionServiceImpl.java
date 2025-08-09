@@ -11,7 +11,6 @@ import com.marketingconfort.challenge.repository.ChallengeRepository;
 import com.marketingconfort.challenge.repository.QuestionRepository;
 import com.marketingconfort.challenge.service.QuestionService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -27,8 +26,8 @@ import org.springframework.http.ResponseEntity;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class QuestionServiceImpl implements QuestionService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QuestionServiceImpl.class);
     private final ChallengeRepository challengeRepository;
     private final QuestionRepository questionRepository;
     private final ChallengeMapper challengeMapper;
